@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
-#include <panel.h>
 #include <stdlib.h>
 #include <string.h>
 //#include <getopt.h>
