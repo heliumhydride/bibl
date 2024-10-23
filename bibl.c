@@ -18,7 +18,7 @@ char* read_file_to_buf(FILE* fileptr) {
   if(NULL == fileptr)
     return NULL;
   if(fseek(fileptr, 0L, SEEK_END) == 0) {
-    size_t filesize = ftell(fileptr);
+    ssize_t filesize = ftell(fileptr);
     if(filesize == -1) {
       return NULL;
     }
@@ -68,6 +68,7 @@ int main(void) {
   initscr();
   keypad(stdscr, TRUE); // we need to take in UP,DOWN,LEFT,RIGHT keys and vim-like hjkl keys to scroll
   nonl(); raw(); // modify char input
+  curs_set(0);
 
   int scr_x, scr_y; // screen size variables
   getmaxyx(stdscr, scr_y, scr_x);
