@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <curses.h>
+#include <menu.h>
 #include <stdlib.h>
 #include <string.h>
 //#include <getopt.h>
@@ -51,15 +52,42 @@ void prev_chapter(void) {
   // TODO load prev chapter if we are not at the first one
 }
 
-void show_menubar(void) {
-  /* TODO show menu bar with:
-   * file ->
-     * exit
-   * search
-   * help ->
-     * documentation link (open in web browser)
-     * about/version
-  */
+int menu_loop(MENU* menu) {
+  post_menu(menu);
+  int ch;
+  int quit = 0;
+  int select = 0;
+  while(!quit) {
+    ch = getch();
+    switch(ch) {
+      case KEY_DOWN: // fallthrough
+      case 'j':
+        menu_driver(menu, REQ_DOWN_ITEM);
+        if(select < 5)
+          select++;
+        break;
+      case KEY_UP: // fallthrough
+      case 'k':
+        menu_driver(menu, REQ_UP_ITEM);
+        if(select > 0)
+          select--;
+        break;
+      case 27: // ESC key
+        select = -1;
+        quit = 1;
+        break;
+      case '\r': case '\n': // ENTER key
+        quit = 1;
+        break;
+      default:
+        menu_driver(menu, ch);
+        menu_driver(menu, REQ_NEXT_MATCH);
+        break;
+    }
+    refresh();
+  }
+  unpost_menu(menu);
+  return select;
 }
 
 //int main(int argc, char* argv[]) {
@@ -68,6 +96,7 @@ int main(void) {
   keypad(stdscr, TRUE); // we need to take in UP,DOWN,LEFT,RIGHT keys and vim-like hjkl keys to scroll
   nonl(); raw(); // modify char input
   curs_set(0);
+  noecho();
 
   int scr_x, scr_y; // screen size variables
   getmaxyx(stdscr, scr_y, scr_x);
@@ -80,6 +109,16 @@ int main(void) {
   char* bible_buffer;
   bible_buffer = "Genesis\n\n  1.1 In the beginning God created the heavens and the earth.\n  1.2 Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.\n  1.3 And God said, \"Let there be light,\" and there was light.\n  1.4 God saw that the light was good, and he separated the light from the darkness.\n  1.5 God called the light \"day\", and the darkness he called \"night\". And there was evening, and there was morning--the first day.\n  1.6 And God said, \"Let there be a vault between the waters to separate water from water.\"\n  1.7 So God made the vault and separated the water under the vault from the water above it. And it was so.\n  1.8 God called the vault \"sky.\" And there was evening, and there was morning--the second day.\n  1.9 And God said, \"Let the water under the sky be gathered to one place, and let dry ground appear.\" And it was so.\n  1.10 God called the dry ground \"land\", and the gathered waters he called \"seas\". And God saw that it was good.\n  1.11 Then God said, \"Let the land produce vegetation: seed-bearing plants and trees on the land that bear fruit with seed in it, according to their various kinds.\" And it was so.\n  1.12 The land produced vegetation: plants bearing seed according to their kinds and trees bearing fruit with seed in it according to their kinds. And God saw that it was good.\n  1.13 And there was evening, and there was morning--the third day.\n  1.14 And God said, \"Let there be lights in the vault of the sky to separate the day from the night, and let them serve as signs to mark sacred times, and days and years,\n  1.15 and let them be lights in the vault of the sky to give light on the earth.\" And it was so.\n  1.16 God made two great lights--the greater light to govern the day and the lesser light to govern the night. He also made the stars.\n  1.17 God set them in the vault of the sky to give light on the earth,\n  1.18 to govern the day and the night, and to separate light from darkness. And God saw that it was good.\n  1.19 And there was evening, and there was morning--the fourth day.\n  1.20 And God said, \"Let the water teem with living creatures, and let birds fly above the earth across the vault of the sky.\"\n  1.21 So God created the great creatures of the sea and every living thing with which the water teems and that moves about in it, according to their kinds, and every winged bird according to its kind. And God saw that it was good.\n  1.22 God blessed them and said, \"Be fruitful and increase in number and fill the water in the seas, and let the birds increase on the earth.\"\n  1.23 And there was evening, and there was morning--the fifth day.\n  1.24 And God said, \"Let the land produce living creatures according to their kinds: the livestock, the creatures that move along the ground, and the wild animals, each according to its kind.\" And it was so.\n  1.25 God made the wild animals according to their kinds, the livestock according to their kinds, and all the creatures that move along the ground according to their kinds. And God saw that it was good.\n";
   // TODO load this from a file
+
+
+  ITEM* menuitems[5];
+  MENU* menu;
+  menuitems[0] = new_item("Exit", "");
+  menuitems[1] = new_item("Search", "");
+  menuitems[2] = new_item("Help", "");
+  menuitems[3] = new_item("About", "");
+  menuitems[4] = NULL;
+  menu = new_menu((ITEM**)menuitems);
 
   int quit = 0;
   int ch;
@@ -114,7 +153,7 @@ int main(void) {
         prev_chapter(); // TODO implement
         break;
       case '!':
-        show_menubar(); // TODO implement
+        (void)menu_loop(menu); // TODO process menu return value 
         break;
       case 'q':
         quit = 1;
@@ -131,6 +170,7 @@ int main(void) {
     wclear(main_window);
   }
 
+  unpost_menu(menu);
   clear();
   wclear(reading_window);
   wrefresh(reading_window);
