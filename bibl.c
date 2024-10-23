@@ -19,37 +19,40 @@ int main(int argc, char* argv[]) {
   keypad(stdscr, TRUE); // we need to take in UP,DOWN,LEFT,RIGHT keys and vim-like hjkl keys to scroll
   nonl(); cbreak(); // modify char input
 
-  char* homedir = getenv("HOME");
-  if(homedir == NULL) {
-    print_error("%s: could not get home dir from environment", argv[0]);
+  char* confdir;
+  #ifndef _WIN32 // Unix
+  confdir = getenv("HOME");
+  #endif
+  #ifdef _WIN32
+  confdir = getenv("AppData");
+  #endif
+  if(confdir == NULL) {
+    print_error("%s: could not get home dir/appdata dir from environment", argv[0]);
     return 2;
   }
 
-  // 2 lines below are curses testing, not part of the actual program
-  printw(homedir);
-  getch();
+  #ifndef _WIN32 //Unix
+  strcat(confdir, "/.config");
+  #endif
 
-  char tmp_dirpath[255] = {}; // ISO C forbids empty init? TODO replace {} with something more c99 compliant
-  strcat(tmp_dirpath, homedir);
-  strcat(tmp_dirpath, "/.config");
-  if(!opendir(tmp_dirpath)) { // if $HOME/.config does not exist
+  if(!opendir(confdir)) { // if $HOME/.config does not exist
     #ifndef _WIN32 // Unix
-    if(mkdir(tmp_dirpath, 0700) == -1)
+    if(mkdir(confdir, 0700) == -1)
     #endif
     #ifdef _WIN32
-    if(mkdir(tmp_dirpath) == -1)
+    if(mkdir(confdir) == -1)
     #endif
     {
       endwin();
-      print_error("creating dir \"%s\" failed\n", tmp_dirpath);
+      print_error("creating dir \"%s\" failed\n", confdir);
       return 1;
     }
-    printw("created $HOME/.config");
+    printw("created non existent config directory \"%s\"\n", confdir);
   }
 
   int first_time_setup = 0;
-  char cfg_filename[255] = {}; // TODO same ISO C problem here as for tmp_dirpath[255]
-  strcat(cfg_filename, tmp_dirpath);
+  char cfg_filename[255] = {}; // ISO C forbids empty init? TODO replace {} with something more c99 compliant
+  strcat(cfg_filename, confdir);
   strcat(cfg_filename, "/bibl.cfg");
 
   FILE* fileptr = fopen(cfg_filename, "wx");
