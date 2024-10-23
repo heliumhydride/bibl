@@ -19,11 +19,7 @@ int main(void) {
   keypad(stdscr, TRUE); // we need to take in UP,DOWN,LEFT,RIGHT keys and vim-like hjkl keys to scroll
   nonl(); cbreak(); // modify char input
 
-  // if(first_time_setup)
-
-  // TODO error if could not write $HOME/.config/bibl.cfg
-
-  // TODO load appropriate language bible
+  // TODO load appropriate language bible into a buffer (we could make a function out of this)
 
   /* TODO keybinds:
    * left arrow/h  -- previous chapter
@@ -36,8 +32,6 @@ int main(void) {
 
   int scr_x, scr_y; // screen size variables
   getmaxyx(stdscr, scr_y, scr_x);
-
-  // TODO the four variables below will be configurable in the configuration file
 
   int height = scr_y - (2*v_margin);
   int width = scr_x - (2*h_margin);
