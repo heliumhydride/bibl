@@ -54,6 +54,7 @@ void prev_chapter(void) {
 
 int menu_loop(MENU* menu) {
   post_menu(menu);
+  int item_count = 5;
   int ch;
   int quit = 0;
   int select = 0;
@@ -63,7 +64,7 @@ int menu_loop(MENU* menu) {
       case KEY_DOWN: // fallthrough
       case 'j':
         menu_driver(menu, REQ_DOWN_ITEM);
-        if(select < 5)
+        if(select < item_count)
           select++;
         break;
       case KEY_UP: // fallthrough
@@ -86,6 +87,9 @@ int menu_loop(MENU* menu) {
     }
     refresh();
   }
+  for(int i = 0; i < item_count; i++)
+    menu_driver(menu, REQ_UP_ITEM); // reset menu item selection
+
   unpost_menu(menu);
   return select;
 }
@@ -113,9 +117,9 @@ int main(void) {
 
   ITEM* menuitems[5];
   MENU* menu;
-  menuitems[0] = new_item("Exit", "");
-  menuitems[1] = new_item("Search", "");
-  menuitems[2] = new_item("Help", "");
+  menuitems[0] = new_item("Exit", "q");
+  menuitems[1] = new_item("Search", "CTRL-F");
+  menuitems[2] = new_item("Help", "F1");
   menuitems[3] = new_item("About", "");
   menuitems[4] = NULL;
   menu = new_menu((ITEM**)menuitems);
@@ -153,7 +157,37 @@ int main(void) {
         prev_chapter(); // TODO implement
         break;
       case '!':
-        (void)menu_loop(menu); // TODO process menu return value 
+        switch(menu_loop(menu)) {
+          case 0: // menu item == Exit
+            quit = 1;
+            break;
+          case 1: // menu item == Search
+            // TODO implement searching in buffer and autoscroll
+            break;
+          case 2: // menu item == Help
+            attrset(A_BOLD); printw("// command help //\n\n");
+            attrset(A_UNDERLINE); printw("up arrow / k");
+            attrset(A_NORMAL); printw(": scroll text up\n");
+            attrset(A_UNDERLINE); printw("down arrow / j");
+            attrset(A_NORMAL); printw(": scroll text down\n");
+            attrset(A_UNDERLINE); printw("right arrow / l");
+            attrset(A_NORMAL); printw(": scroll text up\n");
+            attrset(A_UNDERLINE); printw("left arrow / h");
+            attrset(A_NORMAL); printw(": scroll text up\n");
+            attrset(A_UNDERLINE); printw("!");
+            attrset(A_NORMAL); printw(": control menu\n");
+            attrset(A_UNDERLINE); printw("q");
+            attrset(A_NORMAL); printw(": quit\n");
+            refresh();
+            (void)getch();
+            break;
+          case 3: // menu item == About
+            attrset(A_BOLD); printw("// about bibl //\n\n");
+            attrset(A_NORMAL); printw("  Bible reading app for your terminal\n  version " VERSION);
+            refresh();
+            (void)getch();
+            break;
+        }
         break;
       case 'q':
         quit = 1;
