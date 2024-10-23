@@ -13,6 +13,6 @@ o/bibl: bibl.o prettyprint.o
 	$(CC) $(CFLAGS) -o o/bibl prettyprint.o bibl.o -lcurses
 
 clean:
-	rm -rf *.o examples/*.o *.so* *.a o/*
+	rm -rf *.o o/*
 
-.PHONY: clean examples shared static
+.PHONY: clean

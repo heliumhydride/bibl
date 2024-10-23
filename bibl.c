@@ -5,7 +5,10 @@
 #include <unistd.h>
 #include <curses.h>
 #include <stdlib.h>
-//#include <string.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
 //#include <getopt.h>
 
 #include "prettyprint.h"
@@ -26,14 +29,40 @@ int main(int argc, char* argv[]) {
   printw(homedir);
   getch();
 
-  // TODO check if $HOME/.config exists: if not create directory
-  // TODO check if $HOME/.config/bibl.cfg exists: if not go into first time setup
+  char tmp_dirpath[255] = {}; // ISO C forbids empty init? TODO replace {} with something more c99 compliant
+  strcat(tmp_dirpath, homedir);
+  strcat(tmp_dirpath, "/.config");
+  if(!opendir(tmp_dirpath)) { // if $HOME/.config does not exist
+    #ifndef _WIN32 // Unix
+    if(mkdir(tmp_dirpath, 0700) == -1)
+    #endif
+    #ifdef _WIN32
+    if(mkdir(tmp_dirpath) == -1)
+    #endif
+    {
+      endwin();
+      print_error("creating dir \"%s\" failed\n", tmp_dirpath);
+      return 1;
+    }
+    printw("created $HOME/.config");
+  }
+
+  int first_time_setup = 0;
+  char cfg_filename[255] = {}; // TODO same ISO C problem here as for tmp_dirpath[255]
+  strcat(cfg_filename, tmp_dirpath);
+  strcat(cfg_filename, "/bibl.cfg");
+
+  FILE* fileptr = fopen(cfg_filename, "wx");
+  if(fileptr == NULL) // if our config file doesn't exist
+    first_time_setup = 1;
 
   /* TODO first time setup
    * ask user for default language
    * ask user for screen margins
    * ask user for single screen or dual screen view
   */
+
+  // if(first_time_setup)
 
   // TODO error if could not write $HOME/.config/bibl.cfg
 
