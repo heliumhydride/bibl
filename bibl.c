@@ -165,24 +165,24 @@ int main(void) {
             // TODO implement searching in buffer and autoscroll
             break;
           case 2: // menu item == Help
-            attrset(A_BOLD); printw("// command help //\n\n");
+            attrset(A_BOLD);      printw("// command help //\n\n");
             attrset(A_UNDERLINE); printw("up arrow / k");
-            attrset(A_NORMAL); printw(": scroll text up\n");
+            attrset(A_NORMAL);    printw(": scroll text up\n");
             attrset(A_UNDERLINE); printw("down arrow / j");
-            attrset(A_NORMAL); printw(": scroll text down\n");
+            attrset(A_NORMAL);    printw(": scroll text down\n");
             attrset(A_UNDERLINE); printw("right arrow / l");
-            attrset(A_NORMAL); printw(": scroll text up\n");
+            attrset(A_NORMAL);    printw(": scroll text up\n");
             attrset(A_UNDERLINE); printw("left arrow / h");
-            attrset(A_NORMAL); printw(": scroll text up\n");
+            attrset(A_NORMAL);    printw(": scroll text up\n");
             attrset(A_UNDERLINE); printw("!");
-            attrset(A_NORMAL); printw(": control menu\n");
+            attrset(A_NORMAL);    printw(": control menu\n");
             attrset(A_UNDERLINE); printw("q");
-            attrset(A_NORMAL); printw(": quit\n");
+            attrset(A_NORMAL);    printw(": quit\n");
             refresh();
             (void)getch();
             break;
           case 3: // menu item == About
-            attrset(A_BOLD); printw("// about bibl //\n\n");
+            attrset(A_BOLD);   printw("// about bibl //\n\n");
             attrset(A_NORMAL); printw("  Bible reading app for your terminal\n  version " VERSION);
             refresh();
             (void)getch();
@@ -204,11 +204,13 @@ int main(void) {
     wclear(main_window);
   }
 
+  // cleanup ncurses
   unpost_menu(menu);
   clear();
   wclear(reading_window);
   wrefresh(reading_window);
   delwin(reading_window);
   endwin();
+
   return 0;
 }
