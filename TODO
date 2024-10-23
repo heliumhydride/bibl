@@ -1,5 +1,7 @@
+create a README.md
 french(OST), english (KJV,NKJV,...), russian translations in .txt/.json format
+check if terminal is vertical or horizontal, to change margins accordingly to have a more vertical view
+impose a minimal terminal size
 
-store user parameters to $HOME/.config/bibl.cfg, read file, store in simple KEY="VAL" format
 install bibl executable to /usr(/local)/bin
 install bibles as /usr(/local)/share/bibl/[language].txt/json
