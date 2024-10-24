@@ -52,6 +52,24 @@ void prev_chapter(void) {
   // TODO load prev chapter if we are not at the first one
 }
 
+void show_help(void) {
+  attrset(A_BOLD);      printw("// command help //\n\n");
+  attrset(A_UNDERLINE); printw("up arrow / k");
+  attrset(A_NORMAL);    printw(": scroll text up\n");
+  attrset(A_UNDERLINE); printw("down arrow / j");
+  attrset(A_NORMAL);    printw(": scroll text down\n");
+  attrset(A_UNDERLINE); printw("right arrow / l");
+  attrset(A_NORMAL);    printw(": scroll text up\n");
+  attrset(A_UNDERLINE); printw("left arrow / h");
+  attrset(A_NORMAL);    printw(": scroll text up\n");
+  attrset(A_UNDERLINE); printw("!");
+  attrset(A_NORMAL);    printw(": control menu\n");
+  attrset(A_UNDERLINE); printw("q/ESC");
+  attrset(A_NORMAL);    printw(": quit\n");
+  refresh();
+  (void)getch();
+}
+
 int menu_loop(MENU* menu) {
   post_menu(menu);
   int item_count = 5;
@@ -117,9 +135,9 @@ int main(void) {
 
   ITEM* menuitems[5];
   MENU* menu;
-  menuitems[0] = new_item("Exit", "q");
+  menuitems[0] = new_item("Exit", "q/ESC");
   menuitems[1] = new_item("Search", "CTRL-F");
-  menuitems[2] = new_item("Help", "F1");
+  menuitems[2] = new_item("Help", "");
   menuitems[3] = new_item("About", "");
   menuitems[4] = NULL;
   menu = new_menu((ITEM**)menuitems);
@@ -165,21 +183,7 @@ int main(void) {
             // TODO implement searching in buffer and autoscroll
             break;
           case 2: // menu item == Help
-            attrset(A_BOLD);      printw("// command help //\n\n");
-            attrset(A_UNDERLINE); printw("up arrow / k");
-            attrset(A_NORMAL);    printw(": scroll text up\n");
-            attrset(A_UNDERLINE); printw("down arrow / j");
-            attrset(A_NORMAL);    printw(": scroll text down\n");
-            attrset(A_UNDERLINE); printw("right arrow / l");
-            attrset(A_NORMAL);    printw(": scroll text up\n");
-            attrset(A_UNDERLINE); printw("left arrow / h");
-            attrset(A_NORMAL);    printw(": scroll text up\n");
-            attrset(A_UNDERLINE); printw("!");
-            attrset(A_NORMAL);    printw(": control menu\n");
-            attrset(A_UNDERLINE); printw("q");
-            attrset(A_NORMAL);    printw(": quit\n");
-            refresh();
-            (void)getch();
+            show_help();
             break;
           case 3: // menu item == About
             attrset(A_BOLD);   printw("// about bibl //\n\n");
@@ -189,7 +193,8 @@ int main(void) {
             break;
         }
         break;
-      case 'q':
+      case 'q': // fallthrough
+      case 27:  // ESC key
         quit = 1;
         break;
       case 'c' & 037: // CTRL+C
